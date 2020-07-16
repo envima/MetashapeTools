@@ -1,13 +1,24 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Tue Oct 29 09:06:49 2019
 
-@author: um2
-"""
 
 import Metashape
-import metashapeTools.msSparseCloud as mt
+from msFunctions.msSparseCloud import *
+from msFunctions.msExportTiepointError import *
 
-for chunk in Metashape.app.document.chunks:
-    mt.createSparse(chunk)
+
+def Toolchain01():
+	
+	ac = Metashape.app.getBool("Process all Chunks?")
+	
+	if ac:
+		for chunk in Metashape.app.document.chunks:
+			createSparse(chunk)
+			exportTiepointError(chunk)
+	else:
+		chunk = Metashape.app.document.chunk
+		createSparse(chunk)
+		exportTiepointError(chunk)
+
+
+Metashape.app.addMenuItem("MetashapeTools/Toolchain Part 1", Toolchain01)

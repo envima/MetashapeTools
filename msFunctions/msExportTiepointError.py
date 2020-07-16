@@ -67,7 +67,7 @@ def writeErrors(chunk, filename):
 
 
 
-def msExportTiepointError(chunk, filename = None):
+def ExportTiepointError(chunk, filename = None):
   
   # create a filename of not specified
   if not filename:
@@ -75,7 +75,4 @@ def msExportTiepointError(chunk, filename = None):
     
   writeErrors(chunk, filename)
 
-
-
-msExportTiepointError(chunk = Metashape.app.document.chunk)
 
