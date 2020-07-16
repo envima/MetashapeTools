@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# script version 0.2.1
+
 
 
 # source:  https://www.agisoft.com/forum/index.php?topic=5681.0
@@ -18,6 +18,3 @@ def subsetImages():
 		else:
 				camera.selected = False
 		index += 1
-
-
-Metashape.app.addMenuItem("Custom/Subset", subsetImages)
