@@ -1,18 +1,31 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Tue Oct 29 09:08:10 2019
 
-@author: um2
-"""
 
 import Metashape
-import metashapeTools.msSparseCloud as mt
-import metashapeTools.msOrtho as mo
 
-for chunk in Metashape.app.document.chunks:
-    mt.filterSparse(chunk)
-    mt.exportSparse(chunk)
-    
-    mo.sparse2ortho(chunk)
-    mo.exportOrtho(chunk)
+from msFunctions.msSparseCloud import *
+from msFunctions.msOrtho import *
+from msFunctions.msError import *
+
+
+def Toolchain02():
+	
+	ac = Metashape.app.getBool("Process all Chunks?")
+	
+	if ac:
+		for chunk in Metashape.app.document.chunks:
+			filterSparse(chunk)
+			sparse2ortho(chunk)
+			exportOrtho(chunk)
+			exportSeamlines(chunk)
+			exportMarker(chunk)
+	else:
+		filterSparse(chunk)
+		sparse2ortho(chunk)
+		exportOrtho(chunk)
+		exportSeamlines(chunk)
+		exportMarker(chunk)
+
+
+Metashape.app.addMenuItem("MetashapeTools/Toolchain Part 2", Toolchain02)
