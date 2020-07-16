@@ -12,7 +12,12 @@ def menuSubsetImages():
 
 
 def menuError():
-	exportMarker()
+	ac = Metashape.app.getBool("Process all chunks?")
+	if ac:
+		for chunk in Metashape.app.document.chunks:
+			exportMarker(chunk)
+	else:
+		exportMarker(chunk)
 	
 
 
