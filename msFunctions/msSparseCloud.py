@@ -11,18 +11,14 @@ Created on Thu Jul  4 10:00:09 2019
 import Metashape
 
 
-def createSparse(chunk, doc = Metashape.app.document, alignQuality = Metashape.Accuracy.HighAccuracy, kpl = 40000, tpl = 4000):
+def createSparse(chunk, doc = Metashape.app.document, kpl = 40000, tpl = 4000):
     
     # align photos
-    chunk.matchPhotos(accuracy=alignQuality, reference_preselection = True,
-                      keypoint_limit = kpl, tiepoint_limit = tpl)
+    chunk.matchPhotos(downscale = 1, reference_preselection = True,
+                      keypoint_limit = kpl, tiepoint_limit = tpl, reset_matches = True)
     
-    chunk.alignCameras(adaptive_fitting = True)
+    chunk.alignCameras(adaptive_fitting = True, reset_alignment = True)
     chunk.resetRegion()
-    
-    # save document
-    doc.read_only = False
-    doc.save()
 
 
 def filterSparse(chunk, doc = Metashape.app.document):

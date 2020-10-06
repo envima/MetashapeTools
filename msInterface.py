@@ -58,4 +58,3 @@ Metashape.app.addMenuItem("MetashapeTools/Export Tiepoint Error", menuTiepoints)
 
 
 
-

@@ -18,7 +18,6 @@ def Toolchain01():
 	else:
 		chunk = Metashape.app.document.chunk
 		createSparse(chunk)
-		exportTiepointError(chunk)
 
 
 Metashape.app.addMenuItem("MetashapeTools/Toolchain Part 1", Toolchain01)
