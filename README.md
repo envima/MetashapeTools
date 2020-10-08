@@ -11,7 +11,8 @@ Copy the content of this repo to `~/.local/share/Agisoft/Metashape Pro/scripts/`
 
 ```bash
 
-cp -a . ~/.local/share/Agisoft/Metashape Pro/scripts/
+cd ~/.local/share/Agisoft/Metashape Pro/scripts
+git clone https://github.com/envima/MetashapeTools.git .
 
 ```
 

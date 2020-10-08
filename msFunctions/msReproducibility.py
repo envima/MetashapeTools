@@ -63,7 +63,7 @@ def createMesh(chunk):
 
 
 def repro(chunk, k, RE):
-	for j in range(1,k):
+	for j in range(k):
 		createSparse(chunk, kpl = 40000, tpl = 40000, ds = 1)
 		sparseFilter(chunk, RE)
 		createMesh(chunk)
