@@ -1,38 +1,56 @@
-## Welcome to GitHub Pages
+## Metashape Toolbox
 
-You can use the [editor on GitHub](https://github.com/envima/MetashapeTools/edit/gh-pages/index.md) to maintain and preview the content for your website in Markdown files.
+This Toolbox provides basic workflow scripts and optimizations for Agisoft Metashape.
+Follow the installation guide and there will be a new Menu Point in Metashape available to start the Workflow.
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
 
-### Markdown
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+## The Workflow
 
-```markdown
-Syntax highlighted code block
+1. Add the images you want to process to the Chunk.
+2. Give the chunk a usefull name.
+3. Start the script `Toolchain Part 1`
 
-# Header 1
-## Header 2
-### Header 3
+This will align the images with sensefull default parameters.
 
-- Bulleted
-- List
+* Key Point Limit: 40000
+* Tie Point Limit: 4000
+* Downsampling: 1
 
-1. Numbered
-2. List
+After the script is finished, import your Ground Control Points (GCP) and align them manually in at least 4 images.
+Use about 30 % of the GCP as independent Checkpoints by unticking the checkbox in the Reference Pane.
 
-**Bold** and _Italic_ and `Code` text
+Now you can optimize the georeferencing of the product with the script `Optimize Sparsecloud`.
+This will print out a Reprojection Error for wich the checkpoint error is at its minimum.
 
-[Link](url) and ![Image](src)
-```
+Now use `Toolchain Part 2`. This includes the following steps:
 
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
+* create 2.5D Mesh
+* smooth Mesh with factor 35
+* create Orthomosaic
+	* surface: mesh
+	* refine seamlines = True
+* export of Orthomosaic, Seamlines and Marker error
 
-### Jekyll Themes
 
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/envima/MetashapeTools/settings). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
+## Orthomosaic Reproducibility
 
-### Support or Contact
+1. Add the images you want to process to the Chunk.
+2. Import the GCP and align them.
+3. Start the script `Reproducibility`
 
-Having trouble with Pages? Check out our [documentation](https://docs.github.com/categories/github-pages-basics/) or [contact support](https://github.com/contact) and we’ll help you sort it out.
- 
+
+This will compute a set amount of orthomosaics (default is 5), which later can be analysed in R.
+
+
+
+
+
+
+
+
+
+
+
+
+
