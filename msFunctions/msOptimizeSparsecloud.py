@@ -40,46 +40,93 @@ def pointcloudMetrics(chunk, outpath):
 
 def optimizeSparsecloud(chunk):
 	
-	 outpath = outpath = Metashape.app.document.path[:-4]  
+	outpath = outpath = Metashape.app.document.path[:-4]  
+	
+	# optimize camera
+	chunk.optimizeCameras(fit_f=True, fit_cx=True, fit_cy = True, fit_b1=True, fit_b2 = True, fit_k1 = True, fit_k2 = True, fit_k3 = True, fit_k4=True, fit_p1 = True, fit_p2 =True, adaptive_fitting=True)
+	
+	# export original marker errors
+	chunk.exportReference(path = str(outpath + "_" + str(chunk.label) + "_original_marker_error.txt"),
+	format = Metashape.ReferenceFormatCSV, items = Metashape.ReferenceItemsMarkers, columns = "noxyzXYZuvwUVW", delimiter = ",")
+
+	pointcloudMetrics(chunk, outpath = str(str(Metashape.app.document.path[:-4]) + "initial_pointcloud_errors.txt"))
+	
+	# # # Initial Filter
+	
+	MF = Metashape.PointCloud.Filter()
+	MF.init(chunk, Metashape.PointCloud.Filter.ReconstructionUncertainty)
+	MF.selectPoints(50)
+	chunk.point_cloud.removeSelectedPoints()
+	chunk.optimizeCameras(fit_f=True, fit_cx=True, fit_cy = True, fit_b1=True, fit_b2 = True, fit_k1 = True, fit_k2 = True, fit_k3 = True, fit_k4=True, fit_p1 = True, fit_p2 =True, adaptive_fitting=True)
+	MF.init(chunk, Metashape.PointCloud.Filter.ReprojectionError)		
+	MF.selectPoints(1)
+	chunk.point_cloud.removeSelectedPoints()
+	chunk.optimizeCameras(fit_f=True, fit_cx=True, fit_cy = True, fit_b1=True, fit_b2 = True, fit_k1 = True, fit_k2 = True, fit_k3 = True, fit_k4=True, fit_p1 = True, fit_p2 =True, adaptive_fitting=True)
+	MF.init(chunk, Metashape.PointCloud.Filter.ProjectionAccuracy)		
+	MF.selectPoints(10)
+	chunk.point_cloud.removeSelectedPoints()	
+	chunk.optimizeCameras(fit_f=True, fit_cx=True, fit_cy = True, fit_b1=True, fit_b2 = True, fit_k1 = True, fit_k2 = True, fit_k3 = True, fit_k4=True, fit_p1 = True, fit_p2 =True, adaptive_fitting=True)
+	chunk.resetRegion()
+	
+	# create temporary processing chunk
+	chunk.copy()
+	chunk = Metashape.app.document.chunk
+	chunk.label = "process"
 	
 	
-	 # optimize camera
-	 chunk.optimizeCameras(fit_f=True, fit_cx=True, fit_cy = True, fit_b1=True, fit_b2 = True, fit_k1 = True, fit_k2 = True, fit_k3 = True, fit_k4=True, fit_p1 = True, fit_p2 =True, adaptive_fitting=True)
-	 
-	 # export original marker errors
-	 chunk.exportReference(path = str(outpath + "_" + str(chunk.label) + "_original_marker_error.txt"),
-     format = Metashape.ReferenceFormatCSV, items = Metashape.ReferenceItemsMarkers, columns = "noxyzXYZuvwUVW", delimiter = ",")
-     
-     pointcloudMetrics(chunk, outpath = str(str(Metashape.app.document.path[:-4]) + "initial_pointcloud_errors.txt"))
-     
-     chunk.copy()
-     chunk = Metashape.app.document.chunk
-     chunk.label = "process"
-     
-     # # # Initial Filter
-     
-     MF = Metashape.PointCloud.Filter()
-     MF.init(chunk, Metashape.PointCloud.Filter.ReconstructionUncertainty)
-     MF.selectPoints(50)
-     chunk.point_cloud.removeSelectedPoints()
-     chunk.optimizeCameras(fit_f=True, fit_cx=True, fit_cy = True, fit_b1=True, fit_b2 = True, fit_k1 = True, fit_k2 = True, fit_k3 = True, fit_k4=True, fit_p1 = True, fit_p2 =True, adaptive_fitting=True)
-     MF.init(chunk, Metashape.PointCloud.Filter.ReprojectionError)		
-     MF.selectPoints(1)
-     chunk.point_cloud.removeSelectedPoints()
-     chunk.optimizeCameras(fit_f=True, fit_cx=True, fit_cy = True, fit_b1=True, fit_b2 = True, fit_k1 = True, fit_k2 = True, fit_k3 = True, fit_k4=True, fit_p1 = True, fit_p2 =True, adaptive_fitting=True)
-     MF.init(chunk, Metashape.PointCloud.Filter.ProjectionAccuracy)		
-     MF.selectPoints(10)
-     chunk.point_cloud.removeSelectedPoints()	
-     chunk.optimizeCameras(fit_f=True, fit_cx=True, fit_cy = True, fit_b1=True, fit_b2 = True, fit_k1 = True, fit_k2 = True, fit_k3 = True, fit_k4=True, fit_p1 = True, fit_p2 =True, adaptive_fitting=True)
-     chunk.resetRegion()
-     
-     # calculation of checkpoint error
-     
-     
-     
-     
-     
-     
-  
-     
-	 
+	# # # calculation of checkpoint error
+	cp_error = []
+	for marker in chunk.markers:
+		if marker.reference.enabled == False:
+			est = chunk.crs.project(chunk.transform.matrix.mulp(marker.position))  # Gets estimated marker coordinate
+			ref = marker.reference.location
+
+			if est and ref:
+				cp_error.append((est - ref).norm())  # The .norm() method gives the total error. Removing it gives X/Y/Z error
+	
+	
+	cp0 = statistics.mean(cp_error)
+	
+	# iterative RE filter
+	
+	MF.init(chunk, Metashape.PointCloud.Filter.ReprojectionError)
+	RE = MF.values
+	RE = max(RE)
+	cp1 = 100
+	
+	while cp0 < cp1:
+		 cp1 = cp0
+		 RE = RE - 0.1
+		 MF.init(chunk, Metashape.PointCloud.Filter.ReprojectionError)		
+		 MF.selectPoints(RE)
+		 chunk.point_cloud.removeSelectedPoints()
+		 chunk.optimizeCameras(fit_f=True, fit_cx=True, fit_cy = True, fit_b1=True, fit_b2 = True, fit_k1 = True, fit_k2 = True, fit_k3 = True, fit_k4=True, fit_p1 = True, fit_p2 =True, adaptive_fitting=True)
+		 
+		 cp_error = []
+		 for marker in chunk.markers:
+			 if marker.reference.enabled == False:
+				 est = chunk.crs.project(chunk.transform.matrix.mulp(marker.position))  # Gets estimated marker coordinate
+				 ref = marker.reference.location
+				 if est and ref:
+					 cp_error.append((est - ref).norm())  # The .norm() method gives the total error. Removing it gives X/Y/Z error
+		 cp0 = statistics.mean(cp_error)
+	
+	# switch back to main chunk
+	Metashape.app.document.remove(chunk)
+	chunk = Metashape.app.document.chunk
+	
+	# use second to last RE threshold
+	MF.init(chunk, Metashape.PointCloud.Filter.ReprojectionError)
+	MF.selectPoints(RE + 0.1)
+	chunk.point_cloud.removeSelectedPoints()
+	chunk.optimizeCameras(fit_f=True, fit_cx=True, fit_cy = True, fit_b1=True, fit_b2 = True, fit_k1 = True, fit_k2 = True, fit_k3 = True, fit_k4=True, fit_p1 = True, fit_p2 =True, adaptive_fitting=True)
+	
+	# export updated marker errors
+	chunk.exportReference(path = str(outpath + "_" + str(chunk.label) + "_optimized_marker_error.txt"),
+	format = Metashape.ReferenceFormatCSV, items = Metashape.ReferenceItemsMarkers, columns = "noxyzXYZuvwUVW", delimiter = ",")
+
+	pointcloudMetrics(chunk, outpath = str(str(Metashape.app.document.path[:-4]) + "optimized_pointcloud_errors.txt"))
+	
+	
+	
+
