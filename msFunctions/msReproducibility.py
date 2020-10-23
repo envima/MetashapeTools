@@ -13,9 +13,7 @@ import csv
 
 
 ######
-doc = Metashape.app.document
-chunk = doc.chunk
-outpath = doc.path[:-4]
+
 
 
 

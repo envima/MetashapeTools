@@ -14,7 +14,6 @@ def Toolchain01():
 	if ac:
 		for chunk in Metashape.app.document.chunks:
 			createSparse(chunk)
-			exportTiepointError(chunk)
 	else:
 		chunk = Metashape.app.document.chunk
 		createSparse(chunk)

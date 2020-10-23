@@ -49,7 +49,7 @@ def optimizeSparsecloud(chunk):
 	chunk.exportReference(path = str(outpath + "_" + str(chunk.label) + "_original_marker_error.txt"),
 	format = Metashape.ReferenceFormatCSV, items = Metashape.ReferenceItemsMarkers, columns = "noxyzXYZuvwUVW", delimiter = ",")
 
-	pointcloudMetrics(chunk, outpath = str(str(Metashape.app.document.path[:-4]) + "initial_pointcloud_errors.txt"))
+	pointcloudMetrics(chunk, outpath = str(str(Metashape.app.document.path[:-4]) + "_initial_pointcloud_errors.txt"))
 	
 	# # # Initial Filter
 	
@@ -69,6 +69,9 @@ def optimizeSparsecloud(chunk):
 	chunk.resetRegion()
 	
 	# create temporary processing chunk
+	
+	chunk_backup = Metashape.app.document.chunk
+	
 	chunk.copy()
 	chunk = Metashape.app.document.chunk
 	chunk.label = "process"
@@ -77,7 +80,7 @@ def optimizeSparsecloud(chunk):
 	# # # calculation of checkpoint error
 	cp_error = []
 	for marker in chunk.markers:
-		if marker.reference.enabled == False:
+		if marker.reference.enabled == False and marker.enabled == True:
 			est = chunk.crs.project(chunk.transform.matrix.mulp(marker.position))  # Gets estimated marker coordinate
 			ref = marker.reference.location
 
@@ -104,7 +107,7 @@ def optimizeSparsecloud(chunk):
 		 
 		 cp_error = []
 		 for marker in chunk.markers:
-			 if marker.reference.enabled == False:
+			 if marker.reference.enabled == False and marker.enabled == True:
 				 est = chunk.crs.project(chunk.transform.matrix.mulp(marker.position))  # Gets estimated marker coordinate
 				 ref = marker.reference.location
 				 if est and ref:
@@ -113,7 +116,7 @@ def optimizeSparsecloud(chunk):
 	
 	# switch back to main chunk
 	Metashape.app.document.remove(chunk)
-	chunk = Metashape.app.document.chunk
+	Metashape.app.document.chunk = chunk_backup
 	
 	# use second to last RE threshold
 	MF.init(chunk, Metashape.PointCloud.Filter.ReprojectionError)
@@ -125,7 +128,7 @@ def optimizeSparsecloud(chunk):
 	chunk.exportReference(path = str(outpath + "_" + str(chunk.label) + "_optimized_marker_error.txt"),
 	format = Metashape.ReferenceFormatCSV, items = Metashape.ReferenceItemsMarkers, columns = "noxyzXYZuvwUVW", delimiter = ",")
 
-	pointcloudMetrics(chunk, outpath = str(str(Metashape.app.document.path[:-4]) + "optimized_pointcloud_errors.txt"))
+	pointcloudMetrics(chunk, outpath = str(str(Metashape.app.document.path[:-4]) + "_optimized_pointcloud_errors.txt"))
 	
 	
 	
