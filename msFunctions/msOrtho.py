@@ -38,8 +38,7 @@ def exportOrtho(chunk, doc = Metashape.app.document):
                 white_background=True,
                 source_data=Metashape.DataSource.OrthomosaicData)
     # save document
-    doc.read_only = False
-    doc.save()
+    Metashape.app.document.save()
     # create report
     chunk.exportReport(outpath + "_" + chunk.label + "_report.pdf") 
 

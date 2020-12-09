@@ -8,6 +8,7 @@ from msFunctions.msError import exportMarker
 from msFunctions.msExportTiepointError import *
 from msFunctions.msOptimizeSparsecloud import *
 from msFunctions.msReproducibility import *
+from msFunctions.msDenseCloud import *
 
 
 # helper for optional all chunk processing:
@@ -45,6 +46,17 @@ def menuTiepoints():
 		ExportTiepointError(chunk)
 
 
+def menuDensecloud():
+	ac = Metashape.app.getBool("Process all chunks?")
+	if ac:
+		for chunk in Metashape.app.document.chunks:
+			createDenseCloud(chunk)
+	else:
+		createDenseCloud(chunk)
+
+
+
+
 def menuOptimizeSparsecloud():
 	chunk = Metashape.app.document.chunk
 	optimizeSparsecloud(chunk)
@@ -63,7 +75,7 @@ Metashape.app.addMenuItem("MetashapeTools/Export Marker Error", menuError)
 Metashape.app.addMenuItem("MetashapeTools/Export Tiepoint Error", menuTiepoints)
 Metashape.app.addMenuItem("MetashapeTools/Optimize Sparsecloud", menuOptimizeSparsecloud)
 Metashape.app.addMenuItem("MetashapeTools/Reproducibility", menuReproducibility)
-
+Metashape.app.addMenuItem("MetashapeTools/Densecloud", menuDensecloud)
 
 
 

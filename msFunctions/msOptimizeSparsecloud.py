@@ -40,7 +40,7 @@ def pointcloudMetrics(chunk, outpath):
 
 def optimizeSparsecloud(chunk):
 	
-	outpath = outpath = Metashape.app.document.path[:-4]  
+	outpath = Metashape.app.document.path[:-4]  
 	
 	# optimize camera
 	chunk.optimizeCameras(fit_f=True, fit_cx=True, fit_cy = True, fit_b1=True, fit_b2 = True, fit_k1 = True, fit_k2 = True, fit_k3 = True, fit_k4=True, fit_p1 = True, fit_p2 =True, adaptive_fitting=True)
@@ -49,7 +49,7 @@ def optimizeSparsecloud(chunk):
 	chunk.exportReference(path = str(outpath + "_" + str(chunk.label) + "_original_marker_error.txt"),
 	format = Metashape.ReferenceFormatCSV, items = Metashape.ReferenceItemsMarkers, columns = "noxyzXYZuvwUVW", delimiter = ",")
 
-	pointcloudMetrics(chunk, outpath = str(str(Metashape.app.document.path[:-4]) + "_initial_pointcloud_errors.txt"))
+	pointcloudMetrics(chunk, outpath = str(str(Metashape.app.document.path[:-4]) + "_" + str(chunk.label) +  "_initial_pointcloud_errors.txt"))
 	
 	# # # Initial Filter
 	
@@ -118,6 +118,8 @@ def optimizeSparsecloud(chunk):
 	Metashape.app.document.remove(chunk)
 	Metashape.app.document.chunk = chunk_backup
 	
+	print(chunk.label)
+	
 	# use second to last RE threshold
 	MF.init(chunk, Metashape.PointCloud.Filter.ReprojectionError)
 	MF.selectPoints(RE + 0.1)
@@ -128,7 +130,7 @@ def optimizeSparsecloud(chunk):
 	chunk.exportReference(path = str(outpath + "_" + str(chunk.label) + "_optimized_marker_error.txt"),
 	format = Metashape.ReferenceFormatCSV, items = Metashape.ReferenceItemsMarkers, columns = "noxyzXYZuvwUVW", delimiter = ",")
 
-	pointcloudMetrics(chunk, outpath = str(str(Metashape.app.document.path[:-4]) + "_optimized_pointcloud_errors.txt"))
+	pointcloudMetrics(chunk, outpath = str(str(Metashape.app.document.path[:-4]) + "_" + str(chunk.label) +"_optimized_pointcloud_errors.txt"))
 	
 	
 	
